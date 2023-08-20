@@ -5,6 +5,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,6 +18,11 @@ public class PersonDataServiceTest {
 
     @InjectMocks
     private PersonDataService personDataService;
+
+    @Before
+    public void init() {
+        personDataService.onPropertiesSet();
+    }
 
     @Test
     public void shouldFindPerson() {
@@ -73,6 +79,30 @@ public class PersonDataServiceTest {
         String lastName = "unknown";
 
         List<Person> person = personDataService.findPersonByLastName(lastName);
+
+        assertNull(person);
+    }
+
+    @Test
+    public void shouldAddPerson() {
+
+        String firstName = "lisa";
+        String lastName = "smith";
+
+        Person person = personDataService.addPerson(lastName, firstName);
+
+        assertNotNull(person);
+        assertEquals(firstName, person.getFirstName());
+        assertEquals(lastName, person.getLastName());
+    }
+
+    @Test
+    public void shouldNotAddPerson_whenPersonExists() {
+
+        String firstName = "Aaron";
+        String lastName = "Smith";
+
+        Person person = personDataService.addPerson(lastName, firstName);
 
         assertNull(person);
     }

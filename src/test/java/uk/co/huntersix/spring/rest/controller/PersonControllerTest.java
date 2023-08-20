@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,5 +72,25 @@ public class PersonControllerTest {
             .andDo(print())
             .andExpect(status().isNotFound())
             .andExpect(status().reason(containsString("Person not found [smith]")));
+    }
+
+    @Test
+    public void shouldAddPerson() throws Exception {
+        when(personDataService.addPerson(any(), any())).thenReturn(new Person("Mary", "Smith"));
+        this.mockMvc.perform(post("/person/smith/mary"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("id").exists())
+            .andExpect(jsonPath("firstName").value("Mary"))
+            .andExpect(jsonPath("lastName").value("Smith"));
+    }
+
+    @Test
+    public void shouldNotAddPerson_whenPersonExists() throws Exception {
+        when(personDataService.addPerson(any(), any())).thenReturn(null);
+        this.mockMvc.perform(post("/person/smith/aaron"))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(status().reason(containsString("Person already exists [aaron smith]")));
     }
 }
