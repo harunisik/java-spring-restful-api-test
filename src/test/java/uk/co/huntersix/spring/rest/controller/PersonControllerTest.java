@@ -5,7 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,5 +37,14 @@ public class PersonControllerTest {
             .andExpect(jsonPath("id").exists())
             .andExpect(jsonPath("firstName").value("Mary"))
             .andExpect(jsonPath("lastName").value("Smith"));
+    }
+
+    @Test
+    public void shouldReturnNotFound_whenPersonNotExist() throws Exception {
+        when(personDataService.findPerson(any(), any())).thenReturn(null);
+        this.mockMvc.perform(get("/person/smith/mary"))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(status().reason(containsString("Person not found [mary smith]")));
     }
 }
