@@ -19,7 +19,8 @@ public class PersonDataService {
     public static final List<Person> PERSON_DATA = Arrays.asList(
         new Person("Mary", "Smith"),
         new Person("Brian", "Archer"),
-        new Person("Collin", "Brown")
+        new Person("Collin", "Brown"),
+        new Person("Aaron", "Smith")
     );
 
     public Person findPerson(String lastName, String firstName) {
@@ -36,5 +37,20 @@ public class PersonDataService {
         }
 
         return personList.get(0);
+    }
+
+    public List<Person> findPersonByLastName(String lastName) {
+        Predicate<Person> lastNameEqual = p -> p.getLastName().equalsIgnoreCase(lastName);
+
+        List<Person> personList = PERSON_DATA.stream()
+            .filter(lastNameEqual)
+            .collect(toList());
+
+        if (isEmpty(personList)) {
+            logger.info("person not found by lastName [{}]", lastName);
+            return null;
+        }
+
+        return personList;
     }
 }

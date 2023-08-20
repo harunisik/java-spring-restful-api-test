@@ -1,5 +1,6 @@
 package uk.co.huntersix.spring.rest.controller;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -46,5 +47,29 @@ public class PersonControllerTest {
             .andDo(print())
             .andExpect(status().isNotFound())
             .andExpect(status().reason(containsString("Person not found [mary smith]")));
+    }
+
+    @Test
+    public void shouldReturnPersonByLastName() throws Exception {
+        when(personDataService.findPersonByLastName(any())).thenReturn(
+            asList(new Person("Mary", "Smith"), new Person("Aaron", "Smith")));
+        this.mockMvc.perform(get("/person/smith"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("[0].id").exists())
+            .andExpect(jsonPath("[0].firstName").value("Mary"))
+            .andExpect(jsonPath("[0].lastName").value("Smith"))
+            .andExpect(jsonPath("[1].id").exists())
+            .andExpect(jsonPath("[1].firstName").value("Aaron"))
+            .andExpect(jsonPath("[1].lastName").value("Smith"));
+    }
+
+    @Test
+    public void shouldReturnNotFound_whenPersonNotExistByLastName() throws Exception {
+        when(personDataService.findPersonByLastName(any())).thenReturn(null);
+        this.mockMvc.perform(get("/person/smith"))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(status().reason(containsString("Person not found [smith]")));
     }
 }

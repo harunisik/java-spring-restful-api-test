@@ -5,6 +5,8 @@ import static java.util.Objects.isNull;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.ResponseEntity.ok;
 
+import java.util.Collection;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,17 @@ public class PersonController {
 
         if(isNull(person)) {
             throw new ResponseStatusException(NOT_FOUND, format("Person not found [%s %s]", firstName, lastName));
+        }
+
+        return ok(person);
+    }
+
+    @GetMapping("/person/{lastName}")
+    public ResponseEntity<Collection<Person>> personByLastName(@PathVariable(value="lastName") String lastName) {
+        List<Person> person = personDataService.findPersonByLastName(lastName);
+
+        if(isNull(person)) {
+            throw new ResponseStatusException(NOT_FOUND, format("Person not found [%s]", lastName));
         }
 
         return ok(person);
